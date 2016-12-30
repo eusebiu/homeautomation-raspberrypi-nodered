@@ -1,0 +1,45 @@
+[
+    {
+        "id": "9e0d32b.13342d",
+        "type": "http response",
+        "z": "33887bd0.231084",
+        "name": "",
+        "x": 530,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "c6b5a97c.8fef68",
+        "type": "http in",
+        "z": "33887bd0.231084",
+        "name": "",
+        "url": "/stream",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 560,
+        "wires": [
+            [
+                "5baa4bc8.653444"
+            ]
+        ]
+    },
+    {
+        "id": "5baa4bc8.653444",
+        "type": "template",
+        "z": "33887bd0.231084",
+        "name": "Stream page",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE HTML>\n<html>\n    <head>\n    <title>Camera streaming</title>\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js\"></script>\n    <style type=\"text/css\">\n        #canvas-container {\n           width: 100%;\n           text-align:center;\n        }\n        \n        canvas {\n           display: inline;\n        }\n    </style>\n    <script type=\"text/javascript\">\n        var canvas;\n        var context;\n        var img = new Image();\n\n        var running = false;\n        var streaming = false;\n        var ws; \n        var wsUri = \"ws:\";\n        var loc = window.location;\n        console.log(loc);\n        if (loc.protocol === \"https:\") { wsUri = \"wss:\"; }\n        // This needs to point to the web socket in the Node-RED flow\n        // ... in this case it's ws/simple\n        wsUri += \"//\" + loc.host + loc.pathname.replace(\"stream\",\"ws/streaming\");\n        console.log(\"connect\",wsUri);\n        \n        window.onbeforeunload = function() {\n            if (ws) ws.close();\n        };\n            \n        function onLoad() {\n            $(\"#streamButton\").hide();\n            $(\"#startStopButton\").text(\"Start camera\");\n            \n            canvas = document.getElementById('canvas-video');\n            context = canvas.getContext('2d');\n            \n            // show loading notice\n            context.fillStyle = '#333';\n            context.fillText('Loading...', canvas.width/2-30, canvas.height/3);\n        }\n\n        function wsConnect() {\n            ws = new WebSocket(wsUri);\n            ws.onmessage = function(msg) {\n                var base64String = msg.data;\n                \n                img.onload = function () {\n                    context.drawImage(this, 0, 0, canvas.width, canvas.height);\n                };\n                img.src = 'data:image/jpeg;base64,' + base64String;\n            };\n            ws.onopen = function() {\n                // update the status div with the connection status\n                $(\"#status\").text(\"Connected\");\n            };\n            ws.onclose = function() {\n                // update the status div with the connection status\n                $(\"#status\").text(\"Not connected\");\n                // in case of lost connection tries to reconnect every 3 secs\n                setTimeout(function() {\n                    if (streaming == true)\n                        wsConnect();\n                },3000);\n            };\n        }\n        \n        function startStopCamera() {\n            if (running === false) {\n                $.get(\"/start\", function(data, status) {\n                    $(\"#startStopButton\").text(\"Stop camera\");\n                    $(\"#streamButton\").text(\"Start stream\");\n                    $(\"#status\").text(data); // Started\n                    $(\"#streamButton\").show();\n                    running = true;\n                });\n            } else {\n                startStopStream();\n                $.get(\"/stop\", function(data, status) {\n                    $(\"#startStopButton\").text(\"Start camera\");\n                    $(\"#status\").text(data); // Stopped\n                    $(\"#streamButton\").hide();\n                    running = false;\n                });\n            }\n        }\n        \n        function startStopStream() {\n            if (running == false) {\n                alert(\"Start camera first.\");\n                return;\n            }\n                \n            if (streaming === false) {\n                $(\"#streamButton\").text(\"Stop stream\");\n                wsConnect();\n                streaming = true;\n            } else {\n                $(\"#streamButton\").text(\"Start stream\");\n                if (ws) ws.close();\n                streaming = false;\n            }\n        }\n    </script>\n    </head>\n    <body onload=\"onLoad()\" onunload=\"ws.close();\">\n        <h3>Camera streaming</h3>\n        <button id=\"startStopButton\" onclick=\"startStopCamera()\"></button> \n        <button id=\"streamButton\" onclick=\"startStopStream()\"></button>\n        \n        <hr/>\n            <div id=\"status\">Waiting...</div>\n        <hr/>\n        \n        <div id=\"messages\"></div>\n        <div id=\"canvas-container\">\n            <canvas id=\"canvas-video\" width=\"640\" height=\"480\"></canvas>\n        </div>\n    </body>\n</html>\n",
+        "x": 330,
+        "y": 560,
+        "wires": [
+            [
+                "9e0d32b.13342d"
+            ]
+        ]
+    }
+]

@@ -1,0 +1,211 @@
+[
+    {
+        "id": "b5074ef1.34039",
+        "type": "camerapi-takephoto",
+        "z": "33887bd0.231084",
+        "filemode": "1",
+        "filename": "test.jpeg",
+        "filedefpath": "0",
+        "filepath": "/home/pi/images",
+        "fileformat": "jpeg",
+        "resolution": "3",
+        "fliph": "1",
+        "flipv": "1",
+        "name": "",
+        "x": 630,
+        "y": 400,
+        "wires": [
+            [
+                "12bfc17e.9ced5f",
+                "2fd4df41.62ec2"
+            ]
+        ]
+    },
+    {
+        "id": "83bc1ab8.6f6208",
+        "type": "http in",
+        "z": "33887bd0.231084",
+        "name": "",
+        "url": "/start",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 180,
+        "wires": [
+            [
+                "48a8901d.f3d13"
+            ]
+        ]
+    },
+    {
+        "id": "37681e0b.dee262",
+        "type": "http response",
+        "z": "33887bd0.231084",
+        "name": "",
+        "x": 770,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "ec0a588d.8803a8",
+        "type": "http in",
+        "z": "33887bd0.231084",
+        "name": "",
+        "url": "/stop",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 100,
+        "y": 280,
+        "wires": [
+            [
+                "35fa3a43.1d8db6"
+            ]
+        ]
+    },
+    {
+        "id": "35fa3a43.1d8db6",
+        "type": "function",
+        "z": "33887bd0.231084",
+        "name": "stop",
+        "func": "msg.payload = 'stop';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 280,
+        "wires": [
+            [
+                "12bfc17e.9ced5f"
+            ]
+        ]
+    },
+    {
+        "id": "12bfc17e.9ced5f",
+        "type": "function",
+        "z": "33887bd0.231084",
+        "name": "loop",
+        "func": "// Loop function\n// Top output provides triger for next actions\n// Botton output should be connected to the input through a dealy\n// The msg.payload can consis one of actions: start, stop, toggle\n// Other content is ignored\n// On the outoput the msg.payload contains current loop state\n\ncontext.loop = context.loop || \"stop\";\ncontext.loops = context.loops || 0;\n\n//console.log(\"topic :\" + msg.topic);\n//console.log(\"loop  :\" + context.loop);\n//console.log(\"loops :\" + context.loops);\n//console.log(\"action:\" + msg.payload);\n\nswitch (msg.payload) {\n\tcase \"stop\":\n\t\tcontext.loops = context.loops + 1;\n\t\tmsg.payload = \"stopped\";\n\t\tcontext.loop = \"stop\";\n\t\treturn [msg,null];\n\tcase \"toggle\":\n\t\tif (context.loop == \"start\") {\n\t\t\tmsg.payload = \"stopped\";\n\t\t\tcontext.loop = \"stop\";\n\t\t\treturn [msg,null];\n\t\t} else {\n\t\t\tmsg.payload = \"started\";\n\t\t\tcontext.loop = \"loop\";\n\t\t\tcontext.loops = 1;\n\t\t\treturn [msg,msg];\n\t\t}\n\tcase \"start\":\n\t\tmsg.payload = \"started\";\n\t\tif (context.loop == \"loop\")\n\t\t    return [msg,null];\n\t\tcontext.loop = \"loop\";\n\t    context.loops = 1;\n\t\treturn [msg,msg];\n\tdefault:\n\t\tif (context.loop == \"loop\") {\n\t\t\tcontext.loops = context.loops + 1;\n\t\t\tmsg.payload = \"loop:\" + context.loops;\n\t\t\treturn [msg,msg];\n\t\t} else {\n\t\t\treturn [null,null]; \n\t\t}\n}",
+        "outputs": "2",
+        "noerr": 1,
+        "x": 550,
+        "y": 220,
+        "wires": [
+            [
+                "37681e0b.dee262"
+            ],
+            [
+                "1a4a34be.66058b"
+            ]
+        ]
+    },
+    {
+        "id": "1a4a34be.66058b",
+        "type": "delay",
+        "z": "33887bd0.231084",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "3",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "x": 380,
+        "y": 400,
+        "wires": [
+            [
+                "b5074ef1.34039"
+            ]
+        ]
+    },
+    {
+        "id": "48a8901d.f3d13",
+        "type": "function",
+        "z": "33887bd0.231084",
+        "name": "start",
+        "func": "msg.payload = 'start';\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 250,
+        "y": 180,
+        "wires": [
+            [
+                "12bfc17e.9ced5f"
+            ]
+        ]
+    },
+    {
+        "id": "2fd4df41.62ec2",
+        "type": "function",
+        "z": "33887bd0.231084",
+        "name": "readImgBuffer",
+        "func": "var fs = global.get('fs');\n\n// function to encode file data to base64 encoded string\nfunction base64_encode(file) {\n    // read binary data\n    var bitmap = fs.readFileSync(file);\n    // convert binary data to base64 encoded string\n    return new Buffer(bitmap).toString('base64');\n}\n\nmsg.payload = base64_encode(msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 900,
+        "y": 400,
+        "wires": [
+            [
+                "fd7e46ac.f5daf8"
+            ]
+        ]
+    },
+    {
+        "id": "fd7e46ac.f5daf8",
+        "type": "websocket out",
+        "z": "33887bd0.231084",
+        "name": "",
+        "server": "89634896.b21188",
+        "client": "",
+        "x": 1152,
+        "y": 404,
+        "wires": []
+    },
+    {
+        "id": "33d58b6b.b47b94",
+        "type": "inject",
+        "z": "33887bd0.231084",
+        "name": "start",
+        "topic": "",
+        "payload": "start",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 90,
+        "y": 120,
+        "wires": [
+            [
+                "48a8901d.f3d13"
+            ]
+        ]
+    },
+    {
+        "id": "786856d8.b65ce8",
+        "type": "inject",
+        "z": "33887bd0.231084",
+        "name": "stop",
+        "topic": "",
+        "payload": "stop",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 90,
+        "y": 340,
+        "wires": [
+            [
+                "35fa3a43.1d8db6"
+            ]
+        ]
+    },
+    {
+        "id": "89634896.b21188",
+        "type": "websocket-listener",
+        "z": "",
+        "path": "/ws/streaming",
+        "wholemsg": "false"
+    }
+]
