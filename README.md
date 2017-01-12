@@ -1,12 +1,7 @@
 # homeautomation-raspberrypi-nodered
 A home automation project that uses Node-RED using a Raspberry Pi as a controller.
 
-Flows:
-1. Camera streaming
+Flows
 - Start/Stop Pi Camera using HTTP requests
-- Camera streaming using WebSockets
-- Simple HTML Client app for controlling
-
-Uses:
-- OpenCV
-- Pi Camera API - raspistill
+- Camera streaming using WebSockets + motion detection (using OpenCV)
+- Simple HTML Client app for controlling and viewing images that had motion
