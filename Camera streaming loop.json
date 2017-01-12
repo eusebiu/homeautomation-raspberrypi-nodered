@@ -1,172 +1,127 @@
 [
     {
-        "id": "b5074ef1.34039",
-        "type": "camerapi-takephoto",
-        "z": "33887bd0.231084",
-        "filemode": "1",
-        "filename": "test.jpeg",
-        "filedefpath": "0",
-        "filepath": "/home/pi/images",
-        "fileformat": "jpeg",
-        "resolution": "3",
-        "fliph": "1",
-        "flipv": "1",
-        "name": "",
-        "x": 630,
-        "y": 400,
-        "wires": [
-            [
-                "12bfc17e.9ced5f",
-                "2fd4df41.62ec2"
-            ]
-        ]
-    },
-    {
-        "id": "83bc1ab8.6f6208",
+        "id": "15911e4c.126402",
         "type": "http in",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "",
         "url": "/start",
         "method": "get",
         "swaggerDoc": "",
-        "x": 100,
-        "y": 180,
+        "x": 114,
+        "y": 215,
         "wires": [
             [
-                "48a8901d.f3d13"
+                "70332f5d.bb1a9"
             ]
         ]
     },
     {
-        "id": "37681e0b.dee262",
+        "id": "89eca9d6.f28178",
         "type": "http response",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "",
-        "x": 770,
-        "y": 220,
+        "x": 650,
+        "y": 240,
         "wires": []
     },
     {
-        "id": "ec0a588d.8803a8",
+        "id": "d92e2ec4.6a0a3",
         "type": "http in",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "",
         "url": "/stop",
         "method": "get",
         "swaggerDoc": "",
-        "x": 100,
-        "y": 280,
+        "x": 114,
+        "y": 315,
         "wires": [
             [
-                "35fa3a43.1d8db6"
+                "21fd055a.e9b97a"
             ]
         ]
     },
     {
-        "id": "35fa3a43.1d8db6",
+        "id": "21fd055a.e9b97a",
         "type": "function",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "stop",
         "func": "msg.payload = 'stop';\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 250,
-        "y": 280,
+        "x": 264,
+        "y": 315,
         "wires": [
             [
-                "12bfc17e.9ced5f"
+                "c3bc730a.9e0ba"
             ]
         ]
     },
     {
-        "id": "12bfc17e.9ced5f",
+        "id": "c3bc730a.9e0ba",
         "type": "function",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "loop",
-        "func": "// Loop function\n// Top output provides triger for next actions\n// Botton output should be connected to the input through a dealy\n// The msg.payload can consis one of actions: start, stop, toggle\n// Other content is ignored\n// On the outoput the msg.payload contains current loop state\n\ncontext.loop = context.loop || \"stop\";\ncontext.loops = context.loops || 0;\n\n//console.log(\"topic :\" + msg.topic);\n//console.log(\"loop  :\" + context.loop);\n//console.log(\"loops :\" + context.loops);\n//console.log(\"action:\" + msg.payload);\n\nswitch (msg.payload) {\n\tcase \"stop\":\n\t\tcontext.loops = context.loops + 1;\n\t\tmsg.payload = \"stopped\";\n\t\tcontext.loop = \"stop\";\n\t\treturn [msg,null];\n\tcase \"toggle\":\n\t\tif (context.loop == \"start\") {\n\t\t\tmsg.payload = \"stopped\";\n\t\t\tcontext.loop = \"stop\";\n\t\t\treturn [msg,null];\n\t\t} else {\n\t\t\tmsg.payload = \"started\";\n\t\t\tcontext.loop = \"loop\";\n\t\t\tcontext.loops = 1;\n\t\t\treturn [msg,msg];\n\t\t}\n\tcase \"start\":\n\t\tmsg.payload = \"started\";\n\t\tif (context.loop == \"loop\")\n\t\t    return [msg,null];\n\t\tcontext.loop = \"loop\";\n\t    context.loops = 1;\n\t\treturn [msg,msg];\n\tdefault:\n\t\tif (context.loop == \"loop\") {\n\t\t\tcontext.loops = context.loops + 1;\n\t\t\tmsg.payload = \"loop:\" + context.loops;\n\t\t\treturn [msg,msg];\n\t\t} else {\n\t\t\treturn [null,null]; \n\t\t}\n}",
+        "func": "// Loop function\n// Top output provides triger for next actions\n// Botton output should be connected to the input through a dealy\n// The msg.payload can consis one of actions: start, stop, toggle\n// Other content is ignored\n// On the outoput the msg.payload contains current loop state\n\ncontext.loop = context.loop || \"stop\";\ncontext.loops = context.loops || 0;\n\n//console.log(\"topic :\" + msg.topic);\n//console.log(\"loop  :\" + context.loop);\n//console.log(\"loops :\" + context.loops);\n//console.log(\"action:\" + msg.payload);\n\nswitch (msg.payload) {\n\tcase \"stop\":\n\t\tcontext.loops = context.loops + 1;\n\t\tmsg.payload = \"stopped\";\n\t\tcontext.loop = \"stop\";\n\t\treturn [msg,null];\n\tcase \"toggle\":\n\t\tif (context.loop == \"start\") {\n\t\t\tmsg.payload = \"stopped\";\n\t\t\tcontext.loop = \"stop\";\n\t\t\treturn [msg,null];\n\t\t} else {\n\t\t\tmsg.payload = \"started\";\n\t\t\tcontext.loop = \"loop\";\n\t\t\tcontext.loops = 1;\n\t\t\treturn [msg,msg];\n\t\t}\n\tcase \"start\":\n\t\tmsg.payload = \"started\";\n\t\tif (context.loop == \"loop\")\n\t\t    return [msg,null];\n\t\tcontext.loop = \"loop\";\n\t    context.loops = 1;\n\t\treturn [msg,msg];\n\tdefault:\n\t\tif (context.loop == \"loop\") {\n\t\t\tcontext.loops = context.loops + 1;\n\t\t\tmsg.payload = \"loop:\" + context.loops;\n\t\t\treturn [null, msg];\n\t\t} else {\n\t\t\treturn [null,null]; \n\t\t}\n}",
         "outputs": "2",
         "noerr": 1,
-        "x": 550,
-        "y": 220,
+        "x": 490,
+        "y": 260,
         "wires": [
             [
-                "37681e0b.dee262"
+                "89eca9d6.f28178"
             ],
             [
-                "1a4a34be.66058b"
+                "3f17921e.bb204e"
             ]
         ]
     },
     {
-        "id": "1a4a34be.66058b",
-        "type": "delay",
-        "z": "33887bd0.231084",
-        "name": "",
-        "pauseType": "delay",
-        "timeout": "3",
-        "timeoutUnits": "seconds",
-        "rate": "1",
-        "nbRateUnits": "",
-        "rateUnits": "second",
-        "randomFirst": "1",
-        "randomLast": "5",
-        "randomUnits": "seconds",
-        "drop": false,
-        "x": 380,
-        "y": 400,
-        "wires": [
-            [
-                "b5074ef1.34039"
-            ]
-        ]
-    },
-    {
-        "id": "48a8901d.f3d13",
+        "id": "70332f5d.bb1a9",
         "type": "function",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "start",
         "func": "msg.payload = 'start';\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 250,
-        "y": 180,
+        "x": 264,
+        "y": 215,
         "wires": [
             [
-                "12bfc17e.9ced5f"
+                "c3bc730a.9e0ba"
             ]
         ]
     },
     {
-        "id": "2fd4df41.62ec2",
+        "id": "f4e5579d.545418",
         "type": "function",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "readImgBuffer",
         "func": "var fs = global.get('fs');\n\n// function to encode file data to base64 encoded string\nfunction base64_encode(file) {\n    // read binary data\n    var bitmap = fs.readFileSync(file);\n    // convert binary data to base64 encoded string\n    return new Buffer(bitmap).toString('base64');\n}\n\nmsg.payload = base64_encode(msg.payload);\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 900,
-        "y": 400,
+        "x": 680,
+        "y": 380,
         "wires": [
             [
-                "fd7e46ac.f5daf8"
+                "87654816.7a66d8"
             ]
         ]
     },
     {
-        "id": "fd7e46ac.f5daf8",
+        "id": "87654816.7a66d8",
         "type": "websocket out",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "",
-        "server": "89634896.b21188",
+        "server": "a0de8fd7.5988e",
         "client": "",
-        "x": 1152,
-        "y": 404,
+        "x": 890,
+        "y": 380,
         "wires": []
     },
     {
-        "id": "33d58b6b.b47b94",
+        "id": "e992f571.14c5a8",
         "type": "inject",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "start",
         "topic": "",
         "payload": "start",
@@ -174,18 +129,18 @@
         "repeat": "",
         "crontab": "",
         "once": false,
-        "x": 90,
-        "y": 120,
+        "x": 104,
+        "y": 155,
         "wires": [
             [
-                "48a8901d.f3d13"
+                "70332f5d.bb1a9"
             ]
         ]
     },
     {
-        "id": "786856d8.b65ce8",
+        "id": "a3a2df93.3bf4d",
         "type": "inject",
-        "z": "33887bd0.231084",
+        "z": "52c0224e.2c4bfc",
         "name": "stop",
         "topic": "",
         "payload": "stop",
@@ -193,16 +148,47 @@
         "repeat": "",
         "crontab": "",
         "once": false,
-        "x": 90,
-        "y": 340,
+        "x": 104,
+        "y": 375,
         "wires": [
             [
-                "35fa3a43.1d8db6"
+                "21fd055a.e9b97a"
             ]
         ]
     },
     {
-        "id": "89634896.b21188",
+        "id": "b8e1db8a.db5558",
+        "type": "python-function",
+        "z": "52c0224e.2c4bfc",
+        "name": "Motion detection",
+        "func": "import cv2\nimport os.path\nimport datetime\n\ndelta_thresh = 10\nmin_area = 1500\n\navg = None\nfilePath = msg['payload']\ndirname = os.path.dirname(filePath)\nfileWithExt=os.path.splitext(os.path.basename(filePath))\nprev_filePath = dirname + \"/\" + fileWithExt[0] + \"_prev\" + fileWithExt[1]\n\nframe = cv2.imread(filePath)\n\nif os.path.exists(prev_filePath) == False:\n    cv2.imwrite(prev_filePath, frame)\n    return msg\n\n# get the frame, convert it to grayscale, and blur it\ngray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)\ngray = cv2.GaussianBlur(gray, (21, 21), 0)\n\n# get the prev frame, convert it to grayscale, and blur it\nprev_frame = cv2.imread(prev_filePath)\nprev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)\nprev_frame_gray = cv2.GaussianBlur(prev_frame_gray, (21, 21), 0)\n\n\navg = prev_frame_gray.copy().astype(\"float\")\n\n# accumulate the weighted average between the current frame and\n# previous frames, then compute the difference between the current\n# frame and running average\ncv2.accumulateWeighted(gray, avg, 0.65)\nframeDelta = cv2.absdiff(gray, cv2.convertScaleAbs(avg))\n\n# threshold the delta image, dilate the thresholded image to fill\n# in holes, then find contours on thresholded image\nthresh = cv2.threshold(frameDelta, delta_thresh, 255,\n\tcv2.THRESH_BINARY)[1]\nthresh = cv2.dilate(thresh, None, iterations=2)\n(im2, cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,\n\tcv2.CHAIN_APPROX_SIMPLE)\n\nfound = False\nframeCopy = frame.copy()\n\n# safe as previous frame\ncv2.imwrite(prev_filePath, frame)\n\n# loop over the contours\nfor c in cnts:\n\t# if the contour is too small, ignore it\n\tif cv2.contourArea(c) < min_area:\n\t\tcontinue\n\n\t# compute the bounding box for the contour, draw it on the frame,\n\t# and update the text\n\t(x, y, w, h) = cv2.boundingRect(c)\n\tcv2.rectangle(frameCopy, (x, y), (x + w, y + h), (0, 0, 255), 2)\n\tcv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)\n\tfound = True\n\n\nif found == True:\n    dateStringFileName = datetime.datetime.now().strftime(\"%A %d %B %Y %I:%M:%S%p\") + '.jpg'\n    directory = '/home/pi/detected_images/'\n    \n    if not os.path.exists(directory):\n        os.makedirs(directory)\n    \n    cv2.imwrite(directory + dateStringFileName, frameCopy)\n    cv2.imwrite(filePath, frame)\n\nreturn msg",
+        "outputs": "1",
+        "x": 690,
+        "y": 480,
+        "wires": [
+            [
+                "f4e5579d.545418"
+            ]
+        ]
+    },
+    {
+        "id": "3f17921e.bb204e",
+        "type": "python-function",
+        "z": "52c0224e.2c4bfc",
+        "name": "Raspistill",
+        "func": "import os\n\nfileName = '/home/pi/imagetest.jpg'\ncommand = \"raspistill -t 2500 -br 60 -co 30 -sh 90 -ex night -w 800 -h 600 -o \" + fileName\n\nos.system(command)\n\nmsg['payload'] = fileName\n\nreturn msg",
+        "outputs": 1,
+        "x": 480,
+        "y": 420,
+        "wires": [
+            [
+                "b8e1db8a.db5558",
+                "c3bc730a.9e0ba"
+            ]
+        ]
+    },
+    {
+        "id": "a0de8fd7.5988e",
         "type": "websocket-listener",
         "z": "",
         "path": "/ws/streaming",
