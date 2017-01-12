@@ -9,4 +9,4 @@ Flows:
 
 Uses:
 - OpenCV
-- Pi Camera API - http://flows.nodered.org/node/node-red-contrib-camerapi
+- Pi Camera API - raspistill
